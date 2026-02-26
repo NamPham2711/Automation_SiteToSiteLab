@@ -30,7 +30,6 @@ Mạng được phân chia thành các phòng ban cụ thể sử dụng VLAN, v
 * Môi trường Lab: EVE-NG.
 
 ## Tính năng Tự động hóa (Ansible Playbooks)
-Kho lưu trữ này chứa các kịch bản Ansible được chia nhỏ theo từng chức năng nhằm loại bỏ thao tác cấu hình thủ công:
 1. Cấu hình thiết bị ban đầu: Các Playbook `deploy_fg_...` và `deploy_sw_...` tự động thiết lập thông số cơ sở cho Firewall và Switch.
 2. Triển khai VPN: Playbook `deploy_vpn_s2s.yml` thiết lập đường hầm IPsec Phase 1 & 2 giữa các site.
 3. Quản trị chính sách tập trung: Tự động đẩy các rule tường lửa, chặn truy cập và lọc web (`deploy_policy_...`, `deploy_deny_...`, `deploy_webfilter_...`) đồng loạt xuống thiết bị.

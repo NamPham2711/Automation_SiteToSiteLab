@@ -1,0 +1,12 @@
+---
+# Cau hinh Sub-interfaces tren cong noi xuong Switch
+vlan_interfaces:
+  - { vlanid: 210, interface: "port2", ip: "10.0.210.1 255.255.255.0", name: "GW_GV_S2" }
+  - { vlanid: 220, interface: "port2", ip: "10.0.220.1 255.255.255.0", name: "GW_Lab_S2" }
+  - { vlanid: 230, interface: "port2", ip: "10.0.230.1 255.255.255.0", name: "GW_Hoc_S2" }
+
+# Cau hinh DHCP Server de cap IP tu đong cho cac may Win/VPC
+dhcp_servers:
+  - { interface: "GW_GV_S2", start_ip: "10.0.210.10", end_ip: "10.0.210.100", mask: "255.255.255.0", gw: "10.0.210.1" }
+  - { interface: "GW_Lab_S2", start_ip: "10.0.220.10", end_ip: "10.0.220.100", mask: "255.255.255.0", gw: "10.0.220.1" }
+  - { interface: "GW_Hoc_S2", start_ip: "10.0.230.10", end_ip: "10.0.230.100", mask: "255.255.255.0", gw: "10.0.230.1" }

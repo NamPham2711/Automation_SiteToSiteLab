@@ -1,0 +1,148 @@
+---
+# =================================================================
+# PLAY 1: DAO HAM TU SITE 1 (HA NOI) TRO VAO SITE 2
+# =================================================================
+- name: Play 1 - Cau hinh VPN tren Site 1
+  hosts: site1_gateways
+  vars:
+    vpn_name: "VPN_to_S2"
+    remote_wan: "192.168.70.178"                  # IP Public cua Site 2
+    remote_subnet: "10.0.192.0 255.255.192.0"     # Dai mang LAN Site 2 (theo so do)
+    psk_key: "123456"                     # Mat khau chung
+  tasks:
+    - name: 1. Tao Phase 1 (Cong ao VPN)
+      fortinet.fortios.fortios_vpn_ipsec_phase1_interface:
+        vdom: "root"
+        state: "present"
+        vpn_ipsec_phase1_interface:
+          name: "{{ vpn_name }}"
+          interface: "port1"
+          peertype: "any"
+          net_device: "disable"
+          proposal: "aes256-sha256"
+          remote_gw: "{{ remote_wan }}"
+          psksecret: "{{ psk_key }}"
+
+    - name: 2. Tao Phase 2 (Thong so ma hoa loi)
+      fortinet.fortios.fortios_vpn_ipsec_phase2_interface:
+        vdom: "root"
+        state: "present"
+        vpn_ipsec_phase2_interface:
+          name: "{{ vpn_name }}"
+          phase1name: "{{ vpn_name }}"
+          proposal: "aes256-sha256"
+
+    - name: 3. Dinh tuyen (Static Route) vao Ham VPN
+      fortinet.fortios.fortios_router_static:
+        vdom: "root"
+        state: "present"
+        router_static:
+          seq_num: "50"
+          dst: "{{ remote_subnet }}"
+          device: "{{ vpn_name }}"
+
+    - name: 4. Firewall Policy (Cho phep 2 chieu)
+      fortinet.fortios.fortios_firewall_policy:
+        vdom: "root"
+        state: "present"
+        firewall_policy:
+          policyid: 101
+          name: "VPN_Traffic_S1_to_S2"
+          srcintf: [{"name": "any"}]
+          dstintf: [{"name": "{{ vpn_name }}"}]
+          srcaddr: [{"name": "all"}]
+          dstaddr: [{"name": "all"}]
+          action: "accept"
+          schedule: "always"
+          service: [{"name": "ALL"}]
+          nat: "disable"
+
+    - name: 5. Firewall Policy (Cho phep chieu VPN chui ra LAN)
+      fortinet.fortios.fortios_firewall_policy:
+        vdom: "root"
+        state: "present"
+        firewall_policy:
+          policyid: 102
+          name: "VPN_to_LAN"
+          srcintf: [{"name": "{{ vpn_name }}"}]
+          dstintf: [{"name": "any"}]
+          srcaddr: [{"name": "all"}]
+          dstaddr: [{"name": "all"}]
+          action: "accept"
+          schedule: "always"
+          service: [{"name": "ALL"}]
+          nat: "disable"
+
+# =================================================================
+# PLAY 2: DAO HAM TU SITE 2 (HCM) TRO NGUOC VE SITE 1
+# =================================================================
+- name: Play 2 - Cau hinh VPN tren Site 2
+  hosts: site2_gateways
+  vars:
+    vpn_name: "VPN_to_S1"
+    remote_wan: "192.168.70.176"                  # IP Public cua Site 1
+    remote_subnet: "10.0.0.0 255.255.0.0"       # Dai mang LAN Site 1 (theo so do)
+    psk_key: "123456"                     # Mat khau chung phai giong nhau
+  tasks:
+    - name: 1. Tao Phase 1 (Cong ao VPN)
+      fortinet.fortios.fortios_vpn_ipsec_phase1_interface:
+        vdom: "root"
+        state: "present"
+        vpn_ipsec_phase1_interface:
+          name: "{{ vpn_name }}"
+          interface: "port1"
+          peertype: "any"
+          net_device: "disable"
+          proposal: "aes256-sha256"
+          remote_gw: "{{ remote_wan }}"
+          psksecret: "{{ psk_key }}"
+
+    - name: 2. Tao Phase 2 (Thong so ma hoa loi)
+      fortinet.fortios.fortios_vpn_ipsec_phase2_interface:
+        vdom: "root"
+        state: "present"
+        vpn_ipsec_phase2_interface:
+          name: "{{ vpn_name }}"
+          phase1name: "{{ vpn_name }}"
+          proposal: "aes256-sha256"
+
+    - name: 3. Dinh tuyen (Static Route) vao Ham VPN
+      fortinet.fortios.fortios_router_static:
+        vdom: "root"
+        state: "present"
+        router_static:
+          seq_num: "50"
+          dst: "{{ remote_subnet }}"
+          device: "{{ vpn_name }}"
+
+    - name: 4. Firewall Policy (Cho phep 2 chieu)
+      fortinet.fortios.fortios_firewall_policy:
+        vdom: "root"
+        state: "present"
+        firewall_policy:
+          policyid: 101
+          name: "VPN_Traffic_S2_to_S1"
+          srcintf: [{"name": "any"}]
+          dstintf: [{"name": "{{ vpn_name }}"}]
+          srcaddr: [{"name": "all"}]
+          dstaddr: [{"name": "all"}]
+          action: "accept"
+          schedule: "always"
+          service: [{"name": "ALL"}]
+          nat: "disable"
+
+    - name: 5. Firewall Policy (Cho phep chieu VPN chui ra LAN)
+      fortinet.fortios.fortios_firewall_policy:
+        vdom: "root"
+        state: "present"
+        firewall_policy:
+          policyid: 102
+          name: "VPN_to_LAN"
+          srcintf: [{"name": "{{ vpn_name }}"}]
+          dstintf: [{"name": "any"}]
+          srcaddr: [{"name": "all"}]
+          dstaddr: [{"name": "all"}]
+          action: "accept"
+          schedule: "always"
+          service: [{"name": "ALL"}]
+          nat: "disable"

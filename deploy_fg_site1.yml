@@ -1,0 +1,72 @@
+---
+- name: Cau hinh Gateway va DHCP cho FortiGate Site 1
+  hosts: site1_gateways
+  gather_facts: no
+  tasks:
+    - name: 1. Tao VLAN Sub-interfaces
+      fortinet.fortios.fortios_system_interface:
+        vdom: "root"
+        state: "present"
+        system_interface:
+            name: "{{ item.name }}"
+            vdom: "root"
+            vlanid: "{{ item.vlanid }}"
+            interface: "{{ item.interface }}"
+            ip: "{{ item.ip }}"
+            allowaccess: "ping"
+            type: "vlan"
+      loop: "{{ vlan_interfaces }}"
+
+    - name: 1.5. Cau hinh MTU override
+      fortinet.fortios.fortios_system_interface:
+        vdom: "root"
+        state: "present"
+        system_interface:
+            name: "{{ item.name }}"
+            mtu_override: "enable"
+            mtu: 1400
+      loop: "{{ vlan_interfaces }}"
+
+    - name: 1.6. Cau hinh Default Route ra Internet cho Site 2
+      fortinet.fortios.fortios_router_static:
+        vdom: "root"
+        state: "present"
+        router_static:
+          seq_num: "1"
+          dst: "0.0.0.0 0.0.0.0"
+          gateway: "192.168.70.2"
+          device: "port1"
+
+    - name: 2. Tao DHCP Server cho tung VLAN
+      fortinet.fortios.fortios_system_dhcp_server:
+        vdom: "root"
+        state: "present"
+        system_dhcp_server:
+            id: "{{ ansible_loop.index }}"
+            interface: "{{ item.interface }}"
+            netmask: "{{ item.mask }}"
+            default_gateway: "{{ item.gw }}"
+            dns_service: "local"
+            ip_range:
+                - id: 1
+                  start_ip: "{{ item.start_ip }}"
+                  end_ip: "{{ item.end_ip }}"
+      loop: "{{ dhcp_servers }}"
+      loop_control:
+        extended: yes
+
+    - name: 3. Cau hinh DNS Server tu group_vars/all
+      fortinet.fortios.fortios_system_dns:
+        vdom: "root"
+        system_dns:
+          primary: "{{ dns_servers[0] }}"    # Lay IP dau tien trong danh sach (8.8.8.8)
+          secondary: "{{ dns_servers[1] }}"  # Lay IP thu hai (8.8.4.4)
+
+    - name: 4. Cau hinh NTP Server tu group_vars/all
+      fortinet.fortios.fortios_system_ntp:
+        vdom: "root"
+        system_ntp:
+          type: "custom"
+          ntpserver:
+            - id: 1
+              server: "{{ ntp_servers }}" # Lay IP NTP (10.0.99.1)

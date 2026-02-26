@@ -1,0 +1,13 @@
+# --- SITE 1 ---
+[site1_switches]
+SW_S1 ansible_host=10.0.99.10
+
+[site1_gateways]
+FG_S1 ansible_host=10.0.99.1
+
+# --- SITE 2 ---
+[site2_gateways]
+FG_S2 ansible_host=192.168.70.178
+
+[site2_switches]
+SW_S2 ansible_host=10.0.199.10

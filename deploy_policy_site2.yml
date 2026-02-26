@@ -1,0 +1,53 @@
+---
+- name: Cau hinh Dinh tuyen va Firewall Policy cho Site 2
+  hosts: site2_gateways
+  gather_facts: no
+  tasks:
+
+    - name: 1. Tao Policy cho phep cac VLAN di ra Internet (Co NAT)
+      fortinet.fortios.fortios_firewall_policy:
+        vdom: "root"
+        state: "present"
+        firewall_policy:
+          policyid: 10                   # ID cua Policy
+          name: "VLAN_to_Internet"
+          srcintf:
+            - name: "GW_GV_S2"          # Goi ten các interface VLAN da tao
+            - name: "GW_Lab_S2"
+            - name: "GW_Hoc_S2"
+          dstintf:
+            - name: "port1"
+          srcaddr:
+            - name: "all"
+          dstaddr:
+            - name: "all"
+          action: "accept"
+          schedule: "always"
+          service:
+            - name: "ALL"
+          nat: "enable"
+
+    - name: 2. Tao Policy Inter-VLAN (Cho phep cac VLAN trong Site 2 thong nhau)
+      fortinet.fortios.fortios_firewall_policy:
+        vdom: "root"
+        state: "present"
+        firewall_policy:
+          policyid: 11
+          name: "Inter_VLAN_Site2"
+          srcintf:
+            - name: "GW_GV_S2"
+            - name: "GW_Lab_S2"
+            - name: "GW_Hoc_S2"
+          dstintf:
+            - name: "GW_GV_S2"
+            - name: "GW_Lab_S2"
+            - name: "GW_Hoc_S2"
+          srcaddr:
+            - name: "all"
+          dstaddr:
+            - name: "all"
+          action: "accept"
+          schedule: "always"
+          service:
+            - name: "ALL"
+          nat: "disable"

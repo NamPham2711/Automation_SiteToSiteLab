@@ -1,0 +1,7 @@
+---
+ansible_network_os: cisco.ios.ios
+ansible_connection: network_cli
+ansible_user: admin
+ansible_password: eve
+ansible_become: yes
+ansible_become_method: enable

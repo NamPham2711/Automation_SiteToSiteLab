@@ -1,0 +1,9 @@
+---
+ansible_network_os: fortinet.fortios.fortios
+ansible_connection: httpapi
+ansible_httpapi_use_ssl: no
+ansible_httpapi_validate_certs: no
+ansible_httpapi_port: 443
+ansible_user: admin
+ansible_password: eve
+vdom: "root"

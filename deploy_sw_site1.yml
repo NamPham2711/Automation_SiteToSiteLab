@@ -1,0 +1,43 @@
+---
+- name: Tu dong cau hinh VLAN dung Host Vars
+  hosts: "{{ target_site }}"
+  gather_facts: no
+  tasks:
+    - name: 1. Tao cac VLAN tu danh sach
+      cisco.ios.ios_vlans:
+        config:
+          - name: "{{ item.name }}"
+            vlan_id: "{{ item.id }}"
+        state: merged
+      loop: "{{ vlans }}"
+
+    - name: 2. Cau hinh cong Trunk noi len FortiGate
+      cisco.ios.ios_l2_interfaces:
+        config:
+          - name: "{{ item.interface }}"
+            mode: trunk
+            trunk:
+              allowed_vlans: "{{ item.allowed_vlans }}"
+        state: merged
+      loop: "{{ trunk_ports }}"
+
+    - name: 3. Cau hinh cong Access xuong may tinh
+      cisco.ios.ios_l2_interfaces:
+        config:
+          - name: "{{ item.interface }}"
+            mode: access
+            access:
+              vlan: "{{ item.vlan }}"
+        state: merged
+      loop: "{{ access_ports }}"
+
+    - name: 3. Cau hinh DNS Server tu group_vars/all
+      cisco.ios.ios_config:
+        lines:
+          - "ip domain-lookup"   # Bật tinh năng phan giai ten mien (Bat buoc tren Cisco)
+          - "ip name-server {{ dns_servers[0] }} {{ dns_servers[1] }}" # Goi 2 IP DNS ra
+
+    - name: 4. Cau hinh NTP Server tu group_vars/all
+      cisco.ios.ios_config:
+        lines:
+          - "ntp server {{ ntp_servers }}" # Goi IP MGMT cua con FortiGate ra lam NTP Server

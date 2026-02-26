@@ -1,0 +1,42 @@
+---
+- name: Cau hinh Web Filter chan trang ca cuoc cho Site 1
+  hosts: site1_gateways
+  gather_facts: no
+  tasks:
+
+    - name: 1. Tao danh sach URL Filter (Chan cac chuoi bet va casino)
+      fortinet.fortios.fortios_webfilter_urlfilter:
+        vdom: "root"
+        state: "present"
+        webfilter_urlfilter:
+          id: 1
+          name: "Block_Bet_URLs"
+          entries:
+            - id: 1
+              url: "*bet*"
+              type: "wildcard"
+              action: "block"
+            - id: 2
+              url: "*casino*"
+              type: "wildcard"
+              action: "block"
+
+    - name: 2. Tao Web Filter Profile va ap dung danh sach tren
+      fortinet.fortios.fortios_webfilter_profile:
+        vdom: "root"
+        state: "present"
+        webfilter_profile:
+          name: "WF_Block_Betting"
+          web:
+            urlfilter_table: 1
+
+    - name: 3. Ap dung Web Filter vao Policy ra Internet (ID 10)
+      fortinet.fortios.fortios_firewall_policy:
+        vdom: "root"
+        state: "present"
+        firewall_policy:
+          policyid: 10
+          utm_status: "enable"
+          profile_type: "single"
+          webfilter_profile: "WF_Block_Betting"
+          ssl_ssh_profile: "certificate-inspection"

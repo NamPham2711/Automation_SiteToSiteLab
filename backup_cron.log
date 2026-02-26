@@ -1,0 +1,35 @@
+
+PLAY [Play 1 - Sao luu cau hinh Switch o Site 1] *******************************
+
+TASK [1. Tao thu muc Backups cho Switch tren may Linux] ************************
+changed: [SW_S1 -> localhost]
+
+TASK [2. Rut cau hinh (running-config) tu Switch] ******************************
+[WARNING]: ansible-pylibssh not installed, falling back to paramiko
+changed: [SW_S1]
+
+TASK [3. Thong bao ket qua] ****************************************************
+ok: [SW_S1] => {
+    "msg": "Da luu cau hinh Switch tai: ./backups/SW_S1/config_2026-02-23.cfg"
+}
+
+PLAY [Play 2 - Sao luu cau hinh FortiGate o Site 1] ****************************
+
+TASK [1. Tao thu muc Backups cho FortiGate tren may Linux] *********************
+changed: [FG_S1 -> localhost]
+
+TASK [2. Rut cau hinh tu FortiGate qua API] ************************************
+ok: [FG_S1]
+
+TASK [3. Luu file cau hinh FortiGate ra o cung may Linux] **********************
+changed: [FG_S1 -> localhost]
+
+TASK [4. Thong bao ket qua] ****************************************************
+ok: [FG_S1] => {
+    "msg": "Da luu cau hinh FortiGate tai thu muc ./backups/FG_S1/"
+}
+
+PLAY RECAP *********************************************************************
+FG_S1                      : ok=4    changed=2    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+SW_S1                      : ok=3    changed=2    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+

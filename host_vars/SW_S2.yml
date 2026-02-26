@@ -1,0 +1,19 @@
+---
+# Danh sach VLAN Site 2
+vlans:
+  - { id: 210, name: "Phong_GVien_S2" }
+  - { id: 220, name: "Phong_Lab_S2" }
+  - { id: 230, name: "Phong_Hoc_S2" }
+
+# Cong noi xuong end host
+access_ports:
+  - { interface: "Ethernet0/1", vlan: 210 }
+  - { interface: "Ethernet0/2", vlan: 220 }
+  - { interface: "Ethernet0/3", vlan: 230 }
+
+# Cong noi len FortiGate
+trunk_ports:
+  - interface: "Ethernet0/0"
+    allowed_vlans: "199,210,220,230"
+
+

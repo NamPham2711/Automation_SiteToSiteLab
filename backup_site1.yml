@@ -1,0 +1,62 @@
+---
+# ========================================================
+# PLAY 1: SAO LUU CAU HINH CHO TAT CA SWITCH (CISCO)
+# ========================================================
+- name: Play 1 - Sao luu cau hinh Switch o Site 1
+  hosts: site1_switches
+  gather_facts: no
+  tasks:
+    - name: 1. Tao thu muc Backups cho Switch tren may Linux
+      file:
+        path: "./backups/{{ inventory_hostname }}"
+        state: directory
+        mode: '0755'
+      delegate_to: localhost
+      run_once: no
+
+    - name: 2. Rut cau hinh (running-config) tu Switch
+      cisco.ios.ios_config:
+        backup: yes
+        backup_options:
+          # Dung lookup pipe de lay ngay gio tu may Linux
+          filename: "config_{{ lookup('pipe', 'date +%Y-%m-%d') }}.cfg"
+          dir_path: "./backups/{{ inventory_hostname }}"
+      register: sw_backup
+
+    - name: 3. Thong bao ket qua
+      debug:
+        msg: "Da luu cau hinh Switch tai: {{ sw_backup.backup_path }}"
+
+# ========================================================
+# PLAY 2: SAO LUU CAU HINH CHO TAT CA FIREWALL (FORTIGATE)
+# ========================================================
+- name: Play 2 - Sao luu cau hinh FortiGate o Site 1
+  hosts: site1_gateways
+  gather_facts: no       # Tat luon cho nhanh
+  tasks:
+    - name: 1. Tao thu muc Backups cho FortiGate tren may Linux
+      file:
+        path: "./backups/{{ inventory_hostname }}"
+        state: directory
+        mode: '0755'
+      delegate_to: localhost
+      run_once: no
+
+    - name: 2. Rut cau hinh tu FortiGate qua API
+      fortinet.fortios.fortios_monitor_fact:
+        vdom: "root"
+        selector: "system_config_backup"
+        params:
+          scope: "global"
+      register: fg_backup
+
+    - name: 3. Luu file cau hinh FortiGate ra o cung may Linux
+      copy:
+        content: "{{ fg_backup.meta.raw | default(fg_backup.meta.results) }}"
+        # Ap dung tuong tu cho Fortigate
+        dest: "./backups/{{ inventory_hostname }}/config_{{ lookup('pipe', 'date +%Y-%m-%d') }}.conf"
+      delegate_to: localhost
+
+    - name: 4. Thong bao ket qua
+      debug:
+        msg: "Da luu cau hinh FortiGate tai thu muc ./backups/{{ inventory_hostname }}/"

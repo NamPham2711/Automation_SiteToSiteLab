@@ -1,0 +1,26 @@
+---
+- name: Cau hinh Firewall Policies va Security cho Site 1
+  hosts: site1_gateways
+  gather_facts: no
+  tasks:
+
+    # ---------------------------------------------------------
+    - name: 1. Cam VLAN Hoc Sinh truy cap VLAN Giao Vien (Bao mat de thi)
+      fortinet.fortios.fortios_firewall_policy:
+        vdom: "root"
+        state: "present"
+        firewall_policy:
+          policyid: 9
+          name: "Block_HocSinh_to_GV"
+          srcintf:
+            - name: "GW_Hoc_S1"
+          dstintf:
+            - name: "GW_GV_S1"
+          srcaddr:
+            - name: "all"
+          dstaddr:
+            - name: "all"
+          action: "deny"
+          schedule: "always"
+          service:
+            - name: "ALL"

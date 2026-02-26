@@ -1,7 +1,7 @@
 # Tự động hóa Hạ tầng Mạng Doanh nghiệp
 
 ## Tổng quan dự án
-Dự án này mô phỏng hệ thống mạng doanh nghiệp đa chi nhánh có tính bảo mật và khả năng mở rộng cao, với trọng tâm là Tự động hóa mạng (NetDevOps). Hạ tầng được xây dựng trên EVE-NG, sử dụng Firewall Fortinet và Switch Cisco để kết nối Site 1 tới Site 2 thông qua IPSec VPN. Các quy trình vận hành mạng, từ sao lưu cấu hình đến triển khai chính sách bảo mật, đều được tự động hóa hoàn toàn bằng Ansible.
+Dự án này mô phỏng hệ thống mạng doanh nghiệp đa chi nhánh có tính bảo mật và khả năng mở rộng cao, với trọng tâm là Tự động hóa mạng. Hạ tầng được xây dựng trên EVE-NG, sử dụng Firewall Fortinet và Switch Cisco để kết nối Site 1 tới Site 2 thông qua IPSec VPN. Các quy trình vận hành mạng, từ sao lưu cấu hình đến triển khai chính sách bảo mật, đều được tự động hóa hoàn toàn bằng Ansible.
 
 ## Kiến trúc và Sơ đồ mạng
 
